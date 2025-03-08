@@ -19,31 +19,36 @@ app.delete("/user", async (req, res) => {
   }
 });
 
-// update data of the user
+// update data of the user using id as a reference
+app.patch("/user", async (req, res) => {
+  console.log(req.body);
+  try {
+    const user = await User.findByIdAndUpdate({ _id: req.body.id }, req.body, {
+      returnDocument: "after",
+      runValidators: true,
+    });
+    console.log(user);
+    res.send("User updated successfully");
+  } catch (err) {
+    res.status(400).send("Update failed!\n"+ err.message);
+  }
+});
+
+// update using email as reference
 // app.patch("/user", async (req, res) => {
 //   console.log(req.body);
 //   try {
-//     const user = await User.findByIdAndUpdate({ _id: req.body.id }, req.body, {
-//       returnDocument: "after",
-//     });
+//     const user = await User.findOneAndUpdate(
+//       { emailId: req.body.emailId },
+//       req.body,
+//       { returnDocument: "after" }
+//     );
 //     console.log(user);
 //     res.send("User updated successfully");
 //   } catch (error) {
 //     res.status(400).send("Something went wrong!");
 //   }
 // });
-app.patch("/user", async (req, res) => {
-  console.log(req.body);
-  try {
-    const user = await User.findOneAndUpdate({ "emailId": req.body.emailId }, req.body, {
-      returnDocument: "after",
-    });
-    console.log(user);
-    res.send("User updated successfully");
-  } catch (error) {
-    res.status(400).send("Something went wrong!");
-  }
-});
 
 // get a user from database
 app.get("/user", async (req, res) => {
