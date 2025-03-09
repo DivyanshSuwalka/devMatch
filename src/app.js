@@ -20,17 +20,32 @@ app.delete("/user", async (req, res) => {
 });
 
 // update data of the user using id as a reference
-app.patch("/user", async (req, res) => {
+app.patch("/user/:id", async (req, res) => {
   console.log(req.body);
   try {
-    const user = await User.findByIdAndUpdate({ _id: req.body.id }, req.body, {
+
+    const ALLOWED_UPDATES = [
+      "photoUrl",
+      "about",
+      "gender",
+      "age",
+      "skills",
+    ];
+    const isUpdateAllowed = Object.keys(req.body).every((k) =>
+      ALLOWED_UPDATES.includes(k)
+    );
+    if (!isUpdateAllowed) throw new Error("Update not allowed");
+    if (req.body?.skills.length>10) throw new Error("Skills cannot be more than 10");
+
+    const user = await User.findByIdAndUpdate({ _id: req.params?.id }, req.body, {
       returnDocument: "after",
       runValidators: true,
     });
     console.log(user);
+    if(!user) throw new Error("User not found!");
     res.send("User updated successfully");
   } catch (err) {
-    res.status(400).send("Update failed!\n"+ err.message);
+    res.status(400).send("Update failed!\n" + err.message);
   }
 });
 
@@ -85,6 +100,8 @@ app.post("/signup", async (req, res) => {
   const user = new User(req.body);
 
   try {
+    if (req.body?.skills?.length>10) throw new Error("Skills cannot be more than 10");
+
     await user.save();
     res.send("User added successfully");
   } catch (error) {

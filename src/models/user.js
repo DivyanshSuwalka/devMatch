@@ -1,5 +1,6 @@
 const { kMaxLength } = require("buffer");
 const mongoose = require("mongoose");
+var validator = require("validator");
 
 const userSchema = new mongoose.Schema(
   {
@@ -18,10 +19,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       lowerCase: true,
       trim: true,
+      validate(value) {
+        if (!validator.isEmail(value))
+          throw new Error("Email invalid : " + value);
+      },
     },
     password: {
       type: String,
       required: true,
+      validate(value){
+        if(!validator.isStrongPassword(value)) throw new Error("Use Strong Password!")
+      }
     },
     age: {
       type: Number,
@@ -39,6 +47,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       default:
         "https://png.pngtree.com/png-vector/20220607/ourmid/pngtree-person-gray-photo-placeholder-man-in-a-shirt-on-gray-background-png-image_4853799.png",
+      validate(value){
+        if(!validator.isURL(value)) throw new Error("URL is invalid!")
+      }
     },
     about: {
       type: String,
