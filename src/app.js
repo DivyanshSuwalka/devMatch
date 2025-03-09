@@ -1,6 +1,8 @@
 const express = require("express");
 const connectDB = require("./config/database");
+const { validateSignUpData } = require("./utils/validation");
 const User = require("./models/user");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const port = 7777;
@@ -23,26 +25,24 @@ app.delete("/user", async (req, res) => {
 app.patch("/user/:id", async (req, res) => {
   console.log(req.body);
   try {
-
-    const ALLOWED_UPDATES = [
-      "photoUrl",
-      "about",
-      "gender",
-      "age",
-      "skills",
-    ];
+    const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
     const isUpdateAllowed = Object.keys(req.body).every((k) =>
       ALLOWED_UPDATES.includes(k)
     );
     if (!isUpdateAllowed) throw new Error("Update not allowed");
-    if (req.body?.skills.length>10) throw new Error("Skills cannot be more than 10");
+    if (req.body?.skills.length > 10)
+      throw new Error("Skills cannot be more than 10");
 
-    const user = await User.findByIdAndUpdate({ _id: req.params?.id }, req.body, {
-      returnDocument: "after",
-      runValidators: true,
-    });
+    const user = await User.findByIdAndUpdate(
+      { _id: req.params?.id },
+      req.body,
+      {
+        returnDocument: "after",
+        runValidators: true,
+      }
+    );
     console.log(user);
-    if(!user) throw new Error("User not found!");
+    if (!user) throw new Error("User not found!");
     res.send("User updated successfully");
   } catch (err) {
     res.status(400).send("Update failed!\n" + err.message);
@@ -88,24 +88,45 @@ app.get("/feed", async (req, res) => {
   }
 });
 
+// login existing user
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) throw new Error("Invalid credentials!");
+    const isPasswordValid = bcrypt.compare(password, user.password);
+    if (isPasswordValid) res.send("Login successful");
+    else throw new Error("Invalid credentials!");
+  } catch (error) {
+    res.status(400).send("Error : " + error.message);
+  }
+});
+
+// creating a new user
 app.post("/signup", async (req, res) => {
   console.log(req.body);
 
-  // const userObj = {
-  //   firstName: "Divyansh",
-  //   lastName: "Suwalka",
-  //   emailId: "div@gmail.com",
-  //   password: "testing"
-  // }
-  const user = new User(req.body);
-
   try {
-    if (req.body?.skills?.length>10) throw new Error("Skills cannot be more than 10");
+    if (req.body?.skills?.length > 10)
+      throw new Error("Skills cannot be more than 10");
 
+    // validation of data
+    validateSignUpData(req);
+    // encrypting password
+    const { firstName, lastName, emailId, password } = req.body;
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
     await user.save();
     res.send("User added successfully");
   } catch (error) {
-    res.status(400).send("Error saving the user: " + error.message);
+    res.status(400).send("Error : " + error.message);
   }
 });
 
