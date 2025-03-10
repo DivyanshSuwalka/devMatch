@@ -2,15 +2,15 @@ const express = require("express");
 const app = express();
 const port = 7777;
 
-const { userAuth, adminAuth } = require("../middlewares/auth");
+// const { userAuth, adminAuth } = require("../middlewares/auth");
 
 
-app.get("/user/:userId/:password", userAuth, (req, res) => {
+app.get("/user/:userId/:password", (req, res) => {    // userAuth, 
   console.log(req.params);
   res.send({ firstName: "Divyansh", lastName: "Suwalka" });
 });
 
-app.get("/admin", adminAuth, (req, res) => {
+app.get("/admin", (req, res) => {   // adminAuth, 
   console.log(req.query);
   res.send({ firstName: "Divyansh", lastName: "Suwalka" });
 });
