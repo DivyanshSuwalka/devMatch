@@ -1,6 +1,7 @@
-const { kMaxLength } = require("buffer");
 const mongoose = require("mongoose");
-var validator = require("validator");
+const validator = require("validator");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema(
   {
@@ -27,9 +28,10 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      validate(value){
-        if(!validator.isStrongPassword(value)) throw new Error("Use Strong Password!")
-      }
+      validate(value) {
+        if (!validator.isStrongPassword(value))
+          throw new Error("Use Strong Password!");
+      },
     },
     age: {
       type: Number,
@@ -47,9 +49,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       default:
         "https://png.pngtree.com/png-vector/20220607/ourmid/pngtree-person-gray-photo-placeholder-man-in-a-shirt-on-gray-background-png-image_4853799.png",
-      validate(value){
-        if(!validator.isURL(value)) throw new Error("URL is invalid!")
-      }
+      validate(value) {
+        if (!validator.isURL(value)) throw new Error("URL is invalid!");
+      },
     },
     about: {
       type: String,
@@ -61,5 +63,19 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+  const user = this;
+  const passwordHash = this.password;
+  const isPasswordValid = bcrypt.compare(passwordInputByUser, passwordHash);
+};
+
+userSchema.methods.getJWT = async function () {
+  const user = this;
+  const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$790", {
+    expiresIn: "7d",
+  });
+  return token;
+};
 
 module.exports = mongoose.model("User", userSchema);
