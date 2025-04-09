@@ -71,7 +71,7 @@ const userSchema = new mongoose.Schema(
 userSchema.methods.validatePassword = async function (passwordInputByUser) {
   const user = this;
   const passwordHash = this.password;
-  const isPasswordValid = bcrypt.compare(passwordInputByUser, passwordHash);
+  const isPasswordValid = await bcrypt.compare(passwordInputByUser, passwordHash);
 };
 
 userSchema.methods.getJWT = async function () {
