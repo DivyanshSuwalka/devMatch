@@ -74,11 +74,21 @@ The server will start on the port specified in your `.env` file (e.g., `http://l
 
 Here are the primary API routes available:
 
--   `POST /api/users`: Register a new user.
--   `POST /api/auth`: Authenticate a user and get a token.
--   `GET /api/auth`: Get the logged-in user's data.
--   `POST /api/profile`: Create or update a user's profile.
--   `GET /api/profile`: Get all user profiles.
--   `GET /api/profile/user/:user_id`: Get a profile by user ID.
+-   `POST /signup`: Register a new user.
+-   `POST /login`: login user.
+-   `POST /logout`: logout user.
+
+-   `GET /profile/view`: Get the logged-in user's data.
+-   `PATCH /profile/edit`: update a user's profile.
+-   `PATCH /profile/password`: change the user's password.
+
+-   `POST /request/send/:status/:userId`: send request using user ID =>(Now the request would be ignore or intrested).
+-   `POST /request/review/:status/:requestId`: receiver responds to the incoming requests(accepted or rejected).
+
+-   `GET /user/connections`: Get all user connections(friends).
+-   `GET /user/request`: All the received requests
+-   `GET /user/feed` - All the users on the platform
+
 
 ## 📜 License
+Distributed under the MIT License. See `LICENSE` for more information.
