@@ -86,8 +86,8 @@ Here are the primary API routes available:
 -   `POST /request/review/:status/:requestId`: receiver responds to the incoming requests(accepted or rejected).
 
 -   `GET /user/connections`: Get all user connections(friends).
--   `GET /user/request`: All the received requests
--   `GET /user/feed` - All the users on the platform
+-   `GET /user/request`: All the received requests.
+-   `GET /user/feed` - All the users on the platform.
 
 
 ## 📜 License
